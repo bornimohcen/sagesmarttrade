@@ -31,6 +31,10 @@ class NewsQuickTrade(Strategy):
     def on_new_signal(self, signal: CompositeSignal) -> Optional[Decision]:
         nlp = signal.nlp
 
+        # Skip trades when composite direction is flat; avoid trading on noisy signals.
+        if signal.direction == "flat":
+            return None
+
         if nlp.impact_score < self.cfg.min_impact:
             return None
 
