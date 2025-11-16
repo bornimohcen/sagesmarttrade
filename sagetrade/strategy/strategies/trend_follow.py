@@ -8,22 +8,29 @@ from sagetrade.strategy.base import Decision, Strategy
 from sagetrade.utils.logging import get_logger
 
 
+logger = get_logger(__name__)
+
+
 @dataclass
-class MeanReversionScalperConfig:
-    min_confidence: float = 0.15
-    overbought_rsi: float = 70.0
-    oversold_rsi: float = 30.0
-    size_pct: float = 0.001
-    take_profit_pct: float = 0.002
-    stop_loss_pct: float = 0.004
-    target_duration_sec: int = 600  # 10 minutes
+class TrendFollowConfig:
+    min_confidence: float = 0.2
+    size_pct: float = 0.001  # 0.1% of equity
+    take_profit_pct: float = 0.004  # 0.4%
+    stop_loss_pct: float = 0.006  # 0.6%
+    target_duration_sec: int = 900  # 15 minutes
+    max_rsi_for_long: float = 70.0
+    min_rsi_for_long: float = 50.0
+    min_rsi_for_short: float = 30.0
+    max_rsi_for_short: float = 50.0
 
 
-class MeanReversionScalper(Strategy):
-    name = "mean_reversion_scalper"
+class TrendFollow(Strategy):
+    """Simple trend-following strategy based on EMA vs SMA and RSI."""
+
+    name = "trend_follow"
 
     def __init__(self) -> None:
-        self.cfg = MeanReversionScalperConfig()
+        self.cfg = TrendFollowConfig()
         self._logger = get_logger(__name__)
 
     def initialize(self, config: Dict[str, Any]) -> None:
@@ -37,17 +44,15 @@ class MeanReversionScalper(Strategy):
         if signal.confidence < self.cfg.min_confidence:
             return None
 
-        # Prefer high volatility regimes for mean reversion scalps.
-        if q.regime not in {"normal", "high_vol"}:
-            return None
-
         side: Optional[str] = None
-        # Overbought: short for mean reversion.
-        if q.rsi >= self.cfg.overbought_rsi:
-            side = "sell"
-        # Oversold: buy for rebound.
-        elif q.rsi <= self.cfg.oversold_rsi:
+
+        # Trending up: EMA above SMA and RSI in mid-upper range.
+        if q.ema > q.sma and self.cfg.min_rsi_for_long < q.rsi < self.cfg.max_rsi_for_long:
             side = "buy"
+
+        # Trending down: EMA below SMA and RSI in mid-lower range.
+        elif q.ema < q.sma and self.cfg.min_rsi_for_short < q.rsi < self.cfg.max_rsi_for_short:
+            side = "sell"
 
         if side is None:
             return None
@@ -63,22 +68,28 @@ class MeanReversionScalper(Strategy):
             stop_loss_pct=self.cfg.stop_loss_pct,
             target_duration_sec=self.cfg.target_duration_sec,
             reason=(
-                f"MeanReversionScalper: rsi={q.rsi:.1f}, regime={q.regime}, "
-                f"confidence={signal.confidence:.2f}"
+                f"TrendFollow: ema={q.ema:.4f}, sma={q.sma:.4f}, rsi={q.rsi:.2f}, "
+                f"direction={signal.direction}, confidence={signal.confidence:.2f}"
             ),
         )
 
         self._logger.info(
             "strategy_decision event=strategy_decision strategy=%s symbol=%s side=%s "
-            "score=%.4f confidence=%.3f rsi=%.2f regime=%s",
+            "ema=%.4f sma=%.4f rsi=%.2f score=%.4f confidence=%.3f",
             self.name,
             signal.symbol,
             side,
+            q.ema,
+            q.sma,
+            q.rsi,
             signal.score,
             signal.confidence,
-            q.rsi,
-            q.regime,
         )
 
         return decision
+
+    def on_tick(self, market_state: Dict[str, Any]) -> list[Decision]:
+        # No separate tick-based logic yet.
+        return []
+
 

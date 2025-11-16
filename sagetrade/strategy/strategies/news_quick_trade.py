@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 
 from sagetrade.signals.aggregator import CompositeSignal
 from sagetrade.strategy.base import Decision, Strategy
+from sagetrade.utils.logging import get_logger
 
 
 @dataclass
@@ -22,6 +23,7 @@ class NewsQuickTrade(Strategy):
 
     def __init__(self) -> None:
         self.cfg = NewsQuickTradeConfig()
+        self._logger = get_logger(__name__)
 
     def initialize(self, config: Dict[str, Any]) -> None:
         for field in self.cfg.__dataclass_fields__.keys():
@@ -43,7 +45,7 @@ class NewsQuickTrade(Strategy):
 
         side = "buy" if nlp.sentiment > 0 else "sell"
 
-        return Decision(
+        decision = Decision(
             symbol=signal.symbol,
             strategy_name=self.name,
             side=side,
@@ -58,3 +60,17 @@ class NewsQuickTrade(Strategy):
                 f"events={nlp.event_flags}"
             ),
         )
+
+        self._logger.info(
+            "strategy_decision event=strategy_decision strategy=%s symbol=%s side=%s "
+            "score=%.4f confidence=%.3f sentiment=%.4f impact=%.4f",
+            self.name,
+            signal.symbol,
+            side,
+            signal.score,
+            signal.confidence,
+            nlp.sentiment,
+            nlp.impact_score,
+        )
+
+        return decision

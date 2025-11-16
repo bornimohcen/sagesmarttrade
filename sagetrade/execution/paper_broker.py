@@ -4,9 +4,11 @@ import time
 from dataclasses import dataclass
 from typing import Dict, Tuple
 
+from sagetrade.brokers import BrokerBase
 from sagetrade.execution.models import AccountState, Order, Position, create_market_order
 from sagetrade.storage.trade_log import append_trade
 from sagetrade.strategy.base import Decision
+from sagetrade.utils.logging import get_logger
 
 
 @dataclass
@@ -15,7 +17,7 @@ class PaperBrokerConfig:
     slippage_pct: float = 0.0005  # 5 bps worst-case slippage
 
 
-class PaperBroker:
+class PaperBroker(BrokerBase):
     """Very simple in-memory broker for paper trading.
 
     - Assumes immediate fills at current price +/- slippage.
@@ -34,6 +36,7 @@ class PaperBroker:
         self.account_id = account_id
         # Map position_id -> originating Decision for richer trade logs.
         self._decision_meta: Dict[str, Decision] = {}
+        self._logger = get_logger(__name__)
 
     def _apply_commission(self, notional: float) -> float:
         return notional * self.cfg.commission_pct
@@ -102,6 +105,17 @@ class PaperBroker:
         # Remember decision metadata so we can log a richer trade on close.
         self._decision_meta[position.id] = decision
 
+        self._logger.info(
+            "order_submitted event=order_submitted broker=paper symbol=%s side=%s qty=%.6f "
+            "price=%.4f account_id=%s strategy=%s",
+            decision.symbol,
+            side,
+            qty,
+            fill_price,
+            self.account_id,
+            decision.strategy_name,
+        )
+
         return order, position
 
     def close_position(self, position_id: str, price: float) -> Tuple[Position, float]:
@@ -158,6 +172,19 @@ class PaperBroker:
         }
         append_trade(self.account_id, trade_record)
 
+        self._logger.info(
+            "position_closed event=position_closed broker=paper symbol=%s side=%s qty=%.6f "
+            "entry_price=%.4f exit_price=%.4f pnl=%.4f pnl_pct=%.4f account_id=%s",
+            pos.symbol,
+            pos.side,
+            pos.qty,
+            pos.entry_price,
+            price,
+            pnl,
+            pnl_pct,
+            self.account_id,
+        )
+
         return pos, notional
 
     def check_tp_sl(self, prices: Dict[str, float]) -> Dict[str, Tuple[Position, float]]:
@@ -196,13 +223,22 @@ class PaperBroker:
         return result
 
     def summary(self) -> dict:
-        open_notional = 0.0
+        """Backward-compatible summary wrapper around get_account_summary."""
+        return self.get_account_summary()
+
+    def get_account_summary(self) -> dict:
+        """Return a normalized account summary for risk state."""
+        per_symbol_notional: Dict[str, float] = {}
         for pos in self.account.positions.values():
-            open_notional += pos.qty * pos.entry_price
+            notional = pos.qty * pos.entry_price
+            per_symbol_notional[pos.symbol] = per_symbol_notional.get(pos.symbol, 0.0) + notional
+
+        open_notional = sum(per_symbol_notional.values())
         return {
             "balance": self.account.balance,
             "equity": self.account.equity,
             "realized_pnl": self.account.realized_pnl,
             "open_positions": len(self.account.positions),
             "open_notional": open_notional,
+            "per_symbol_notional": per_symbol_notional,
         }

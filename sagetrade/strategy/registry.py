@@ -9,12 +9,15 @@ from sagetrade.strategy.base import Strategy
 from sagetrade.strategy.strategies.mean_reversion_scalper import MeanReversionScalper
 from sagetrade.strategy.strategies.momentum_scalper import MomentumScalper
 from sagetrade.strategy.strategies.news_quick_trade import NewsQuickTrade
+from sagetrade.strategy.strategies.trend_follow import TrendFollow
+from sagetrade.utils.config import get_settings
 
 
 STRATEGY_CLASSES: Dict[str, Type[Strategy]] = {
     "momentum_scalper": MomentumScalper,
     "mean_reversion_scalper": MeanReversionScalper,
     "news_quick_trade": NewsQuickTrade,
+    "trend_follow": TrendFollow,
 }
 
 
@@ -37,26 +40,36 @@ class StrategyManager:
         self._instantiate_strategies()
 
     def _build_default_configs(self) -> Dict[str, StrategyConfig]:
-        return {
+        settings = get_settings()
+        enabled_set = set(settings.strategies.enabled or [])
+
+        base_cfgs: Dict[str, StrategyConfig] = {
             "momentum_scalper": StrategyConfig(
                 name="momentum_scalper",
-                enabled=True,
+                enabled="momentum_scalper" in enabled_set,
                 min_confidence=0.2,
                 allowed_regimes=["normal", "high_vol"],
             ),
             "mean_reversion_scalper": StrategyConfig(
                 name="mean_reversion_scalper",
-                enabled=True,
+                enabled="mean_reversion_scalper" in enabled_set,
                 min_confidence=0.15,
                 allowed_regimes=["normal", "high_vol"],
             ),
             "news_quick_trade": StrategyConfig(
                 name="news_quick_trade",
-                enabled=True,
+                enabled="news_quick_trade" in enabled_set,
                 min_confidence=0.0,
                 allowed_regimes=["low_vol", "normal", "high_vol"],
             ),
+            "trend_follow": StrategyConfig(
+                name="trend_follow",
+                enabled="trend_follow" in enabled_set,
+                min_confidence=0.2,
+                allowed_regimes=["normal", "high_vol"],
+            ),
         }
+        return base_cfgs
 
     def _instantiate_strategies(self) -> None:
         enabled_override = os.environ.get("STRATEGIES_ENABLED")
@@ -92,9 +105,15 @@ class StrategyManager:
     def select_for_signal(self, signal: CompositeSignal) -> List[Strategy]:
         """Return strategies that are allowed for this signal (regime + confidence)."""
         out: List[Strategy] = []
+        settings = get_settings()
+        per_symbol = settings.strategies.per_symbol or {}
+        symbol_allowed = per_symbol.get(signal.symbol, settings.strategies.enabled)
+
         for name, strat in self.strategies.items():
             cfg = self.configs.get(name)
             if not cfg or not cfg.enabled:
+                continue
+            if name not in symbol_allowed:
                 continue
             if signal.confidence < cfg.min_confidence:
                 continue
@@ -102,5 +121,4 @@ class StrategyManager:
                 continue
             out.append(strat)
         return out
-
 

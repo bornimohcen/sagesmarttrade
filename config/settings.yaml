@@ -2,11 +2,13 @@ app:
   name: "SAGE SmartTrade"
   env: "dev"
   base_currency: "USD"
+  timezone: "Africa/Algiers"
 
 data:
   base_dir: "data"
   market_dir: "data/market"
   text_dir: "data/text"
+  logs_dir: "logs"
 
 risk:
   max_risk_per_trade_pct: 0.005
@@ -16,8 +18,40 @@ risk:
 
 brokers:
   default: "paper"
+  paper:
+    starting_equity: 10000.0
   alpaca:
-    base_url: "https://paper-api.alpaca.markets"
-    key_env: "ALPACA_API_KEY"
-    secret_env: "ALPACA_API_SECRET"
+    base_url: "https://paper-api.alpaca.markets/v2"
+    key_env: "PKREPLRZ2WL5NUQDDNQGW6OQ7J"
+    secret_env: "4J8hexWdC3cdV39KMnoSwkH89J9JmRMSuDFTjVZPyMPd"
 
+strategies:
+  enabled:
+    - "news_quick_trade"
+    - "momentum_scalper"
+    - "mean_reversion_scalper"
+    - "trend_follow"
+  per_symbol:
+    BTCUSD:
+      - "news_quick_trade"
+    AAPL:
+      - "trend_follow"
+
+symbols:
+  default_universe:
+    - "BTCUSD"
+    - "AAPL"
+    - "EURUSD"
+
+telegram:
+  enabled: false
+  bot_token_env: "8222022315:AAGoVXBocA0GTWoCi2fLtlhWB1ljjg2H4SE"
+  chat_id_env: "7311427983"
+
+ai:
+  enabled: false
+  provider: "mock"          # mock | openai | local
+  model: "gpt-4.1"          # placeholder; ignored for mock
+  max_output_tokens: 400
+  language: "ar"
+  api_key_env: "OPENAI_API_KEY"

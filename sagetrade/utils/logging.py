@@ -4,36 +4,58 @@ import json
 import logging
 import sys
 import time
+from logging import Logger
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from sagetrade.utils.config import get_settings
 
 
 def _now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def setup_logging(level: int = logging.INFO) -> None:
-    """Configure standard library logging (console + file).
+def setup_logging(level: int = logging.INFO, *, log_to_file: bool = True) -> None:
+    """Configure root logging for SAGE SmartTrade.
 
-    This complements the JSON `log_event` helper and is intended mainly for
-    scripts and local development. It is safe to call multiple times.
+    - Console output with a readable format.
+    - Optional file output in logs/sagesmarttrade.log.
+    - Safe to call multiple times.
     """
-    logs_dir = Path("logs")
-    logs_dir.mkdir(exist_ok=True)
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler(logs_dir / "sagesmarttrade.log", encoding="utf-8"),
-        ],
-    )
+    settings = get_settings()
+    logs_dir = Path(settings.data.logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+
+    fmt = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    datefmt = "%Y-%m-%dT%H:%M:%SZ"
+
+    handlers: list[logging.Handler] = []
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+    handlers.append(console_handler)
+
+    if log_to_file:
+        file_handler = logging.FileHandler(logs_dir / "sagesmarttrade.log", encoding="utf-8")
+        file_handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+        handlers.append(file_handler)
+
+    logging.basicConfig(level=level, handlers=handlers)
+
+    # Reduce noise from common third-party libraries.
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
+
+def get_logger(name: Optional[str] = None) -> Logger:
+    """Return a namespaced logger."""
+    return logging.getLogger(name or "sagetrade")
 
 
 def log_event(event: str, level: str = "INFO", **fields: Any) -> None:
     """Emit a simple JSON log line to stdout.
 
-    This is intended for sandbox observability and can be shipped to ELK later.
+    This is intended for structured observability and can be shipped to ELK later.
     """
     payload: Dict[str, Any] = {
         "ts": _now_iso(),
@@ -53,4 +75,3 @@ def log_event(event: str, level: str = "INFO", **fields: Any) -> None:
 
 def log_error(event: str, **fields: Any) -> None:
     log_event(event, level="ERROR", **fields)
-

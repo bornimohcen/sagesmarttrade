@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 
 from sagetrade.signals.aggregator import CompositeSignal
 from sagetrade.strategy.base import Decision, Strategy
+from sagetrade.utils.logging import get_logger
 
 
 @dataclass
@@ -23,6 +24,7 @@ class MomentumScalper(Strategy):
 
     def __init__(self) -> None:
         self.cfg = MomentumScalperConfig()
+        self._logger = get_logger(__name__)
 
     def initialize(self, config: Dict[str, Any]) -> None:
         for field in self.cfg.__dataclass_fields__.keys():
@@ -48,7 +50,7 @@ class MomentumScalper(Strategy):
         if side is None:
             return None
 
-        return Decision(
+        decision = Decision(
             symbol=signal.symbol,
             strategy_name=self.name,
             side=side,
@@ -64,4 +66,17 @@ class MomentumScalper(Strategy):
             ),
         )
 
+        self._logger.info(
+            "strategy_decision event=strategy_decision strategy=%s symbol=%s side=%s "
+            "score=%.4f confidence=%.3f rsi=%.2f regime=%s",
+            self.name,
+            signal.symbol,
+            side,
+            signal.score,
+            signal.confidence,
+            q.rsi,
+            q.regime,
+        )
+
+        return decision
 
