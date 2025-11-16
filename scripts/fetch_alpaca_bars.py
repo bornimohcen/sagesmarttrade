@@ -44,21 +44,34 @@ def fetch_stock_bars(symbol: str, timeframe: str, start: Optional[str], end: Opt
         params["start"] = start
     if end:
         params["end"] = end
-    resp = requests.get(url, headers=headers, params=params, timeout=30)
-    resp.raise_for_status()
-    data = resp.json().get("bars", [])
+    page_token: Optional[str] = None
+    rows: List[Dict] = []
+    fetched = 0
+    while True:
+        if page_token:
+            params["page_token"] = page_token
+        resp = requests.get(url, headers=headers, params=params, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        bars = data.get("bars", [])
+        for b in bars:
+            rows.append(
+                {
+                    "ts": iso_to_ts(b.get("t", "")),
+                    "o": b.get("o", 0.0),
+                    "h": b.get("h", 0.0),
+                    "l": b.get("l", 0.0),
+                    "c": b.get("c", 0.0),
+                    "v": b.get("v", 0.0),
+                }
+            )
+            fetched += 1
+            if fetched >= limit:
+                return rows
+        page_token = data.get("next_page_token")
+        if not page_token:
+            break
     rows = []
-    for b in data:
-        rows.append(
-            {
-                "ts": iso_to_ts(b.get("t", "")),
-                "o": b.get("o", 0.0),
-                "h": b.get("h", 0.0),
-                "l": b.get("l", 0.0),
-                "c": b.get("c", 0.0),
-                "v": b.get("v", 0.0),
-            }
-        )
     return rows
 
 
@@ -72,28 +85,39 @@ def fetch_crypto_bars(symbol: str, timeframe: str, start: Optional[str], end: Op
         params["start"] = start
     if end:
         params["end"] = end
-    resp = requests.get(url, headers=headers, params=params, timeout=30)
-    resp.raise_for_status()
-    raw = resp.json().get("bars", {})
-    bars_list: List[Dict] = []
-    if isinstance(raw, dict):
-        for _, sym_bars in raw.items():
-            bars_list.extend(sym_bars)
-    elif isinstance(raw, list):
-        bars_list = raw
-
     rows: List[Dict] = []
-    for b in bars_list:
-        rows.append(
-            {
-                "ts": iso_to_ts(b.get("t", "")),
-                "o": b.get("o", 0.0),
-                "h": b.get("h", 0.0),
-                "l": b.get("l", 0.0),
-                "c": b.get("c", 0.0),
-                "v": b.get("v", 0.0),
-            }
-        )
+    fetched = 0
+    page_token: Optional[str] = None
+    while True:
+        if page_token:
+            params["page_token"] = page_token
+        resp = requests.get(url, headers=headers, params=params, timeout=30)
+        resp.raise_for_status()
+        raw = resp.json().get("bars", {})
+        bars_list: List[Dict] = []
+        if isinstance(raw, dict):
+            for _, sym_bars in raw.items():
+                bars_list.extend(sym_bars)
+        elif isinstance(raw, list):
+            bars_list = raw
+
+        for b in bars_list:
+            rows.append(
+                {
+                    "ts": iso_to_ts(b.get("t", "")),
+                    "o": b.get("o", 0.0),
+                    "h": b.get("h", 0.0),
+                    "l": b.get("l", 0.0),
+                    "c": b.get("c", 0.0),
+                    "v": b.get("v", 0.0),
+                }
+            )
+            fetched += 1
+            if fetched >= limit:
+                return rows
+        page_token = resp.json().get("next_page_token")
+        if not page_token:
+            break
     return rows
 
 
@@ -162,13 +186,18 @@ def main() -> int:
             # - Stocks: alphabetic <=5 and not FX
             # - Crypto: 6-letter ending with USD (e.g., BTCUSD), otherwise fallback to crypto
             if sym in fx_majors:
-                bars = fetch_fx_bars(sym, args.timeframe, args.start, args.end, args.limit, headers)
+                try:
+                    bars = fetch_fx_bars(sym, args.timeframe, args.start, args.end, args.limit, headers)
+                except RuntimeError as fx_err:
+                    print(f"[{sym}] skipped – forex not enabled: {fx_err}")
+                    continue
             elif sym.isalpha() and 1 <= len(sym) <= 5 and sym not in fx_majors:
                 bars = fetch_stock_bars(sym, args.timeframe, args.start, args.end, args.limit, headers)
             elif len(sym) == 6 and sym.isalpha() and sym.endswith("USD"):
                 bars = fetch_crypto_bars(sym, args.timeframe, args.start, args.end, args.limit, headers)
             else:
-                bars = fetch_crypto_bars(sym, args.timeframe, args.start, args.end, args.limit, headers)
+                print(f"[{sym}] skipped – unsupported symbol format.")
+                continue
             if not bars:
                 print(f"[{sym}] no bars fetched.")
                 continue
