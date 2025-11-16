@@ -1,0 +1,23 @@
+app:
+  name: "SAGE SmartTrade"
+  env: "dev"
+  base_currency: "USD"
+
+data:
+  base_dir: "data"
+  market_dir: "data/market"
+  text_dir: "data/text"
+
+risk:
+  max_risk_per_trade_pct: 0.005
+  max_daily_loss_pct: 0.03
+  max_symbol_exposure_pct: 0.2
+  max_open_trades: 10
+
+brokers:
+  default: "paper"
+  alpaca:
+    base_url: "https://paper-api.alpaca.markets"
+    key_env: "ALPACA_API_KEY"
+    secret_env: "ALPACA_API_SECRET"
+
