@@ -81,6 +81,15 @@ class TelegramSettings(BaseModel):
         return os.getenv(self.chat_id_env)
 
 
+class AISettings(BaseModel):
+    enabled: bool = False
+    provider: str = "mock"  # mock | openai | local
+    model: str = "gpt-4.1"
+    max_output_tokens: int = 400
+    language: str = "mix"  # en | ar | mix
+    api_key_env: str = "OPENAI_API_KEY"
+
+
 class Settings(BaseModel):
     app: AppSettings
     data: DataSettings
@@ -89,6 +98,7 @@ class Settings(BaseModel):
     strategies: StrategiesSettings = StrategiesSettings()
     symbols: SymbolsSettings = SymbolsSettings()
     telegram: TelegramSettings = TelegramSettings()
+    ai: AISettings = AISettings()
 
 
 def _load_yaml(path: Path) -> dict:
@@ -136,8 +146,8 @@ __all__ = [
     "StrategiesSettings",
     "SymbolsSettings",
     "TelegramSettings",
+    "AISettings",
     "Settings",
     "get_settings",
     "load_settings",
 ]
-
