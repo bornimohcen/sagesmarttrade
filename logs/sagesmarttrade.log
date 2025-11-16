@@ -11871,3 +11871,18 @@
 2025-11-16T16:19:23Z | INFO | __main__ | [TSLA] weekend and insufficient bars; skipping quietly
 2025-11-16T16:23:46Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
 2025-11-16T16:23:47Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=flat score=0.0315 confidence=0.032 regime=high_vol rsi=53.15
+2025-11-16T16:24:51Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
+2025-11-16T16:24:53Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=flat score=0.0414 confidence=0.041 regime=high_vol rsi=54.14
+2025-11-16T16:26:04Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=short score=-0.0813 confidence=0.081 regime=high_vol rsi=41.87
+2025-11-16T16:26:05Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=ETHUSD direction=long score=0.0973 confidence=0.097 regime=high_vol rsi=59.73
+2025-11-16T16:26:05Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=short score=-0.1948 confidence=0.195 regime=high_vol rsi=30.52
+2025-11-16T16:26:06Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
+2025-11-16T16:26:06Z | INFO | __main__ | [MSFT] weekend and insufficient bars; skipping quietly
+2025-11-16T16:26:07Z | INFO | __main__ | [TSLA] weekend and insufficient bars; skipping quietly
+2025-11-16T16:34:13Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=short score=-0.1572 confidence=0.157 regime=high_vol rsi=34.28
+2025-11-16T16:34:14Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=ETHUSD direction=short score=-0.0995 confidence=0.099 regime=high_vol rsi=40.05
+2025-11-16T16:34:14Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=short score=-0.4001 confidence=0.400 regime=high_vol rsi=9.99
+2025-11-16T16:34:14Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=SOLUSD side=buy score=-0.4001 confidence=0.400 rsi=9.99 regime=high_vol
+2025-11-16T16:34:15Z | ERROR | __main__ | [SOLUSD] runner_failed error=404 Client Error: Not Found for url: https://paper-api.alpaca.markets/account
+2025-11-16T16:34:15Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
+2025-11-16T16:34:16Z | INFO | __main__ | [MSFT] weekend and insufficient bars; skipping quietly
