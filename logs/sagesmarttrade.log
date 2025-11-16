@@ -11869,3 +11869,5 @@
 2025-11-16T16:19:22Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
 2025-11-16T16:19:23Z | INFO | __main__ | [MSFT] weekend and insufficient bars; skipping quietly
 2025-11-16T16:19:23Z | INFO | __main__ | [TSLA] weekend and insufficient bars; skipping quietly
+2025-11-16T16:23:46Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
+2025-11-16T16:23:47Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=flat score=0.0315 confidence=0.032 regime=high_vol rsi=53.15

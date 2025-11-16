@@ -17,11 +17,11 @@ risk:
   max_open_trades: 10
 
 brokers:
-  default: "paper"
+  default: "alpaca"
   paper:
     starting_equity: 10000.0
   alpaca:
-    base_url: "https://paper-api.alpaca.markets/v2"
+    base_url: "https://paper-api.alpaca.markets"
     key_env: "PKREPLRZ2WL5NUQDDNQGW6OQ7J"
     secret_env: "4J8hexWdC3cdV39KMnoSwkH89J9JmRMSuDFTjVZPyMPd"
 
