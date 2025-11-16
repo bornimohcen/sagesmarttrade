@@ -34,8 +34,20 @@ strategies:
   per_symbol:
     BTCUSD:
       - "news_quick_trade"
-    AAPL:
+      - "momentum_scalper"
+      - "mean_reversion_scalper"
       - "trend_follow"
+    AAPL:
+      - "news_quick_trade"
+      - "momentum_scalper"
+      - "mean_reversion_scalper"
+      - "trend_follow"
+    EURUSD:
+      - "news_quick_trade"
+      - "momentum_scalper"
+      - "mean_reversion_scalper"
+      - "trend_follow"
+
 
 symbols:
   default_universe:

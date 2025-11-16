@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from sagetool.kill_switch import is_enabled as kill_switch_enabled
-from sagetrade.execution.paper_broker import PaperBroker
+from sagetrade.execution.broker_factory import build_broker
 from sagetrade.risk.manager import RiskManager
 from sagetrade.signals.aggregator import aggregate
 from sagetrade.signals.nlp import get_signals as get_nlp_signals
@@ -96,7 +96,7 @@ def main() -> int:
     nlp_sig = get_nlp_signals("market", news_items)
 
     risk = RiskManager()
-    broker = PaperBroker(initial_balance=risk.cfg.initial_equity, account_id=args.account_id)
+    broker = build_broker()
     manager = StrategyManager()
 
     log_event(
@@ -172,10 +172,13 @@ def main() -> int:
                     risk.on_close(closed.symbol, notional, closed.realized_pnl)
                     print(f"[CLOSE] {pos_id}: {closed}")
 
-            summary = broker.summary()
-            # Synchronize risk state with broker account summary for equity/PnL.
-            risk.state.equity = summary.get("equity", risk.state.equity)
-            risk.state.realized_pnl = summary.get("realized_pnl", risk.state.realized_pnl)
+            if hasattr(broker, "summary"):
+                summary = broker.summary()
+                # Synchronize risk state with broker account summary for equity/PnL.
+                risk.state.equity = summary.get("equity", risk.state.equity)
+                risk.state.realized_pnl = summary.get("realized_pnl", risk.state.realized_pnl)
+            else:
+                summary = {"equity": risk.state.equity, "realized_pnl": risk.state.realized_pnl}
 
             print("Risk state:", risk.state)
             print("Broker summary:", summary)

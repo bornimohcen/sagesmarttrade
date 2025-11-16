@@ -1,0 +1,16 @@
+Total trades: 0
+total_pnl: 0.0
+return_pct: 0.0
+max_drawdown: 0.0
+win_rate: 0.0
+sharpe: 0.0
+
+Per-strategy:
+Empty DataFrame
+Columns: []
+Index: []
+
+Per-symbol:
+Empty DataFrame
+Columns: []
+Index: []
