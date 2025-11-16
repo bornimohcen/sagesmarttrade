@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 import yaml
 from pydantic import BaseModel, Field
 
+from sagetrade.portfolio.config import PortfolioConfig, SymbolAllocation, StrategyAllocation, AssetClassAllocation
 
 PathLike = Union[str, Path]
 
@@ -99,6 +100,7 @@ class Settings(BaseModel):
     symbols: SymbolsSettings = SymbolsSettings()
     telegram: TelegramSettings = TelegramSettings()
     ai: AISettings = AISettings()
+    portfolio: PortfolioConfig = PortfolioConfig()
 
 
 def _load_yaml(path: Path) -> dict:
@@ -147,6 +149,10 @@ __all__ = [
     "SymbolsSettings",
     "TelegramSettings",
     "AISettings",
+    "PortfolioConfig",
+    "SymbolAllocation",
+    "StrategyAllocation",
+    "AssetClassAllocation",
     "Settings",
     "get_settings",
     "load_settings",

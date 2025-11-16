@@ -67,3 +67,10 @@ ai:
   max_output_tokens: 400
   language: "ar"
   api_key_env: "OPENAI_API_KEY"
+
+portfolio:
+  max_total_leverage: 1.0
+  max_positions: 50
+  symbols: {}
+  strategies: {}
+  asset_classes: {}

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Iterable, List, Sequence
+from typing import Iterable, List, Sequence, Dict, Any, Optional
 
 import pandas as pd
 
@@ -13,6 +13,9 @@ from sagetrade.signals.nlp_news import compute_nlp_news_signals
 from sagetrade.signals.quant import get_signals_from_bars
 from sagetrade.signals.social import compute_social_signals
 from sagetrade.strategy.registry import StrategyManager
+from sagetrade.strategy.strategies.news_quick_trade import NewsQuickTrade
+from sagetrade.strategy.strategies.trend_follow import TrendFollow
+from sagetrade.strategy.params import NewsQuickTradeParams, TrendFollowParams
 from sagetrade.utils.logging import log_event
 
 
@@ -22,8 +25,12 @@ def run_backtest(
     news_items: Sequence[dict],
     initial_equity: float = 10_000.0,
     window: int = 20,
+    strategy_params: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> TradeLog:
-    """Simplified backtest runner for one symbol using existing components."""
+    """Simplified backtest runner for one symbol using existing components.
+
+    strategy_params: optional dict {strategy_name: {param: value}} to override defaults.
+    """
     if not bars:
         raise ValueError("No bars provided for backtest.")
 
@@ -39,7 +46,8 @@ def run_backtest(
     nlp_sig = compute_nlp_news_signals("market")
     social_sig = compute_social_signals(symbol)
 
-    strat_mgr = StrategyManager()
+    strategies = _build_strategies(strategy_params)
+    strat_mgr = StrategyManager() if strategies is None else None
     trade_log = TradeLog()
 
     last_price = float(bars_sorted[-1]["c"])
@@ -60,8 +68,8 @@ def run_backtest(
         q_sig = get_signals_from_bars(symbol, window_bars, window=window)
         comp = build_composite_signal(symbol, q_sig, nlp_sig, social_sig)
 
-        strategies = strat_mgr.select_for_signal(comp)
-        for strat in strategies:
+        active_strats = strategies if strategies is not None else strat_mgr.select_for_signal(comp)
+        for strat in active_strats:
             decision = strat.on_new_signal(comp)
             if decision is None:
                 continue
@@ -125,3 +133,16 @@ def run_backtest(
 
 __all__ = ["run_backtest"]
 
+
+def _build_strategies(strategy_params: Optional[Dict[str, Dict[str, Any]]]):
+    """Return list of strategy instances using provided params; None means use default StrategyManager."""
+    if strategy_params is None:
+        return None
+    instances = []
+    for name, params in strategy_params.items():
+        if name == "news_quick_trade":
+            instances.append(NewsQuickTrade(params=NewsQuickTradeParams(**params)))
+        elif name == "trend_follow":
+            instances.append(TrendFollow(params=TrendFollowParams(**params)))
+        # extend with other strategies as needed
+    return instances
