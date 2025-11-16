@@ -51,7 +51,9 @@ def fetch_recent_stock_bars(symbol: str, timeframe: str, limit: int, headers: Di
     params = {"timeframe": timeframe, "limit": limit}
     resp = requests.get(url, headers=headers, params=params, timeout=15)
     resp.raise_for_status()
-    bars = resp.json().get("bars", [])
+    bars = resp.json().get("bars", []) or []
+    if not isinstance(bars, list):
+        raise ValueError(f"Unexpected bars payload for {symbol}: {bars}")
     return [{"ts": b["t"], "o": b["o"], "h": b["h"], "l": b["l"], "c": b["c"], "v": b.get("v", 0)} for b in bars]
 
 
@@ -67,6 +69,10 @@ def fetch_recent_crypto_bars(symbol: str, timeframe: str, limit: int, headers: D
     if isinstance(raw, dict):
         for _, sym_bars in raw.items():
             bars.extend(sym_bars)
+    elif isinstance(raw, list):
+        bars = raw
+    else:
+        raise ValueError(f"Unexpected crypto bars payload for {symbol}: {raw}")
     return [{"ts": b["t"], "o": b["o"], "h": b["h"], "l": b["l"], "c": b["c"], "v": b.get("v", 0)} for b in bars]
 
 
