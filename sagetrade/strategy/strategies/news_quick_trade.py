@@ -5,14 +5,13 @@ from typing import Any, Dict, Optional
 
 from sagetrade.signals.aggregator import CompositeSignal
 from sagetrade.strategy.base import Decision, Strategy
+from sagetrade.strategy.params import NewsQuickTradeParams
 from sagetrade.utils.logging import get_logger
 
 
 @dataclass
 class NewsQuickTradeConfig:
-    min_impact: float = 0.1
-    min_sentiment_abs: float = 0.003
-    size_pct: float = 0.005  # 0.5% of equity per trade
+    size_pct: float = 0.005  # fallback if params.risk_factor not used
     take_profit_pct: float = 0.0025
     stop_loss_pct: float = 0.004
     target_duration_sec: int = 300  # 5 minutes
@@ -21,8 +20,9 @@ class NewsQuickTradeConfig:
 class NewsQuickTrade(Strategy):
     name = "news_quick_trade"
 
-    def __init__(self) -> None:
+    def __init__(self, params: Optional[NewsQuickTradeParams] = None) -> None:
         self.cfg = NewsQuickTradeConfig()
+        self.params = params or NewsQuickTradeParams()
         self._logger = get_logger(__name__)
 
     def initialize(self, config: Dict[str, Any]) -> None:
@@ -32,15 +32,22 @@ class NewsQuickTrade(Strategy):
 
     def on_new_signal(self, signal: CompositeSignal) -> Optional[Decision]:
         nlp = signal.nlp
+        p = self.params
 
         # Skip trades when composite direction is flat; avoid trading on noisy signals.
         if signal.direction == "flat":
             return None
 
-        if nlp.impact_score < self.cfg.min_impact:
+        if nlp.impact_score < p.min_impact_score:
             return None
 
-        if abs(nlp.sentiment) < self.cfg.min_sentiment_abs:
+        if abs(nlp.sentiment) < p.min_abs_sentiment:
+            return None
+
+        if signal.confidence < p.min_confidence:
+            return None
+
+        if p.require_high_vol_regime and signal.quant.regime != "high_vol":
             return None
 
         side = "buy" if nlp.sentiment > 0 else "sell"

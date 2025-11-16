@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 
 from sagetrade.signals.aggregator import CompositeSignal
 from sagetrade.strategy.base import Decision, Strategy
+from sagetrade.strategy.params import TrendFollowParams
 from sagetrade.utils.logging import get_logger
 
 
@@ -13,15 +14,10 @@ logger = get_logger(__name__)
 
 @dataclass
 class TrendFollowConfig:
-    min_confidence: float = 0.2
-    size_pct: float = 0.001  # 0.1% of equity
+    size_pct: float = 0.001  # fallback if risk_factor not used
     take_profit_pct: float = 0.004  # 0.4%
     stop_loss_pct: float = 0.006  # 0.6%
     target_duration_sec: int = 900  # 15 minutes
-    max_rsi_for_long: float = 70.0
-    min_rsi_for_long: float = 50.0
-    min_rsi_for_short: float = 30.0
-    max_rsi_for_short: float = 50.0
 
 
 class TrendFollow(Strategy):
@@ -29,8 +25,9 @@ class TrendFollow(Strategy):
 
     name = "trend_follow"
 
-    def __init__(self) -> None:
+    def __init__(self, params: Optional[TrendFollowParams] = None) -> None:
         self.cfg = TrendFollowConfig()
+        self.params = params or TrendFollowParams()
         self._logger = get_logger(__name__)
 
     def initialize(self, config: Dict[str, Any]) -> None:
@@ -40,18 +37,19 @@ class TrendFollow(Strategy):
 
     def on_new_signal(self, signal: CompositeSignal) -> Optional[Decision]:
         q = signal.quant
+        p = self.params
 
-        if signal.confidence < self.cfg.min_confidence:
+        if signal.confidence < p.min_confidence:
             return None
 
         side: Optional[str] = None
 
         # Trending up: EMA above SMA and RSI in mid-upper range.
-        if q.ema > q.sma and self.cfg.min_rsi_for_long < q.rsi < self.cfg.max_rsi_for_long:
+        if q.ema > q.sma and p.rsi_long_min < q.rsi < p.rsi_long_max:
             side = "buy"
 
         # Trending down: EMA below SMA and RSI in mid-lower range.
-        elif q.ema < q.sma and self.cfg.min_rsi_for_short < q.rsi < self.cfg.max_rsi_for_short:
+        elif q.ema < q.sma and p.rsi_short_min < q.rsi < p.rsi_short_max:
             side = "sell"
 
         if side is None:
@@ -61,7 +59,7 @@ class TrendFollow(Strategy):
             symbol=signal.symbol,
             strategy_name=self.name,
             side=side,
-            size_pct=self.cfg.size_pct,
+            size_pct=self.cfg.size_pct,  # risk_factor يمكن تطبيقه لاحقاً في position sizing محسن
             order_type="market",
             limit_price=None,
             take_profit_pct=self.cfg.take_profit_pct,
@@ -91,5 +89,4 @@ class TrendFollow(Strategy):
     def on_tick(self, market_state: Dict[str, Any]) -> list[Decision]:
         # No separate tick-based logic yet.
         return []
-
 

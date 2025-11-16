@@ -24,7 +24,10 @@ class AlpacaBroker(BrokerBase):
     """
 
     def __init__(self, base_url: str) -> None:
-        self.base_url = base_url.rstrip("/")
+        normalized = base_url.rstrip("/")
+        if not normalized.endswith("/v2"):
+            normalized = f"{normalized}/v2"
+        self.base_url = normalized
         self.api_key = os.getenv("ALPACA_API_KEY")
         self.api_secret = os.getenv("ALPACA_API_SECRET")
         if not self.api_key or not self.api_secret:
@@ -117,4 +120,3 @@ class AlpacaBroker(BrokerBase):
 
 
 __all__ = ["AlpacaBroker"]
-

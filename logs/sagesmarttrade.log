@@ -11886,3 +11886,8 @@
 2025-11-16T16:34:15Z | ERROR | __main__ | [SOLUSD] runner_failed error=404 Client Error: Not Found for url: https://paper-api.alpaca.markets/account
 2025-11-16T16:34:15Z | INFO | __main__ | [AAPL] weekend and insufficient bars; skipping quietly
 2025-11-16T16:34:16Z | INFO | __main__ | [MSFT] weekend and insufficient bars; skipping quietly
+2025-11-16T16:39:58Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=short score=-0.1691 confidence=0.169 regime=high_vol rsi=33.09
+2025-11-16T16:39:58Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=ETHUSD direction=flat score=0.0126 confidence=0.013 regime=high_vol rsi=51.26
+2025-11-16T16:39:59Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=short score=-0.4208 confidence=0.421 regime=high_vol rsi=7.92
+2025-11-16T16:39:59Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=SOLUSD side=buy score=-0.4208 confidence=0.421 rsi=7.92 regime=high_vol
+2025-11-16T16:40:00Z | INFO | __main__ | [SOLUSD] mean_reversion_scalper ORDER->Order(id='7e6c41bd-294b-41cb-b3b3-2f5fef3fa2a2', symbol='SOLUSD', side='buy', qty=0.07161092353027532, type='market', status='pending_new', created_at=1763307599.7072217, updated_at=1763307599.7072217, limit_price=None, filled_qty=0.0, avg_fill_price=0.0, cancelled_reason=None) POSITION->Position(id='7e6c41bd-294b-41cb-b3b3-2f5fef3fa2a2', symbol='SOLUSD', side='long', qty=0.07161092353027532, entry_price=139.6435, take_profit=None, stop_loss=None, opened_at=1763307599.7072217, closed_at=None, realized_pnl=0.0)
