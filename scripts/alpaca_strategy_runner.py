@@ -108,7 +108,12 @@ def main() -> int:
             else:
                 bars = fetch_recent_crypto_bars(sym, args.timeframe, args.limit, headers)
             if len(bars) < 20:
-                logger.warning("[%s] not enough bars fetched; skipping", sym)
+                # If نهاية الأسبوع (السبت/الأحد)، تخطَّ بصمت؛ otherwise warn
+                is_weekend = datetime.now(timezone.utc).weekday() >= 5
+                if is_weekend:
+                    logger.info("[%s] weekend and insufficient bars; skipping quietly", sym)
+                else:
+                    logger.warning("[%s] not enough bars fetched; skipping", sym)
                 continue
 
             nlp_sig = compute_nlp_news_signals("market")
