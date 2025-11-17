@@ -87,10 +87,13 @@ def main() -> int:
     settings = get_settings()
     symbols = [s.strip().upper() for s in (args.symbols.split(",") if args.symbols else settings.symbols.default_universe)]
 
-    api_key = os.getenv("ALPACA_API_KEY")
-    api_secret = os.getenv("ALPACA_API_SECRET")
+    alpaca_cfg = settings.brokers.alpaca
+    api_key = alpaca_cfg.resolve_key()
+    api_secret = alpaca_cfg.resolve_secret()
     if not api_key or not api_secret:
-        raise SystemExit("ALPACA_API_KEY/ALPACA_API_SECRET must be set for Alpaca data.")
+        raise SystemExit(
+            "ALPACA_API_KEY/ALPACA_API_SECRET must be set in env or config.brokers.alpaca.key/secret for Alpaca data."
+        )
     headers = {
         "APCA-API-KEY-ID": api_key,
         "APCA-API-SECRET-KEY": api_secret,

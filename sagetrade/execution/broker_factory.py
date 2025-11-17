@@ -9,8 +9,11 @@ def build_broker():
     settings = get_settings()
     default = settings.brokers.default.lower()
     if default == "alpaca":
-        base_url = settings.brokers.alpaca.base_url
-        return AlpacaBroker(base_url=base_url)
+        alpaca_cfg = settings.brokers.alpaca
+        return AlpacaBroker(
+            base_url=alpaca_cfg.base_url,
+            api_key=alpaca_cfg.resolve_key(),
+            api_secret=alpaca_cfg.resolve_secret(),
+        )
     # fallback to paper broker
     return PaperBroker(initial_balance=settings.brokers.paper.starting_equity, account_id="paper-loop")
-

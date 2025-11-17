@@ -11900,3 +11900,52 @@
 2025-11-16T17:04:08Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=short score=-0.4698 confidence=0.470 regime=high_vol rsi=3.02
 2025-11-16T17:04:08Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=SOLUSD side=buy score=-0.4698 confidence=0.470 rsi=3.02 regime=high_vol
 2025-11-16T17:04:09Z | INFO | __main__ | [SOLUSD] mean_reversion_scalper ORDER->Order(id='b808869a-6395-4b9d-93bd-4985ff1e1ffa', symbol='SOLUSD', side='buy', qty=0.07290781899904855, type='market', status='pending_new', created_at=1763309048.514433, updated_at=1763309048.514433, limit_price=None, filled_qty=0.0, avg_fill_price=0.0, cancelled_reason=None) POSITION->Position(id='b808869a-6395-4b9d-93bd-4985ff1e1ffa', symbol='SOLUSD', side='long', qty=0.07290781899904855, entry_price=137.1595, take_profit=None, stop_loss=None, opened_at=1763309048.514433, closed_at=None, realized_pnl=0.0)
+2025-11-17T10:36:44Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=flat score=0.0496 confidence=0.050 regime=high_vol rsi=54.96
+2025-11-17T10:36:44Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=ETHUSD direction=flat score=0.0046 confidence=0.005 regime=high_vol rsi=50.46
+2025-11-17T10:36:45Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=long score=0.0664 confidence=0.066 regime=high_vol rsi=56.64
+2025-11-17T10:36:45Z | WARNING | __main__ | [AAPL] not enough bars fetched; skipping
+2025-11-17T10:36:46Z | WARNING | __main__ | [MSFT] not enough bars fetched; skipping
+2025-11-17T10:40:09Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=BTCUSD direction=flat score=-0.0400 confidence=0.040 regime=high_vol rsi=46.00
+2025-11-17T10:40:10Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=ETHUSD direction=short score=-0.1206 confidence=0.121 regime=high_vol rsi=37.94
+2025-11-17T10:40:10Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=SOLUSD direction=flat score=0.0408 confidence=0.041 regime=high_vol rsi=54.08
+2025-11-17T10:40:11Z | WARNING | __main__ | [AAPL] not enough bars fetched; skipping
+2025-11-17T10:40:11Z | WARNING | __main__ | [MSFT] not enough bars fetched; skipping
+2025-11-17T10:46:07Z | WARNING | __main__ | [AAPL] not enough bars fetched; skipping
+2025-11-17T10:46:08Z | WARNING | __main__ | [MSFT] not enough bars fetched; skipping
+2025-11-17T10:46:09Z | WARNING | __main__ | [TSLA] not enough bars fetched; skipping
+2025-11-17T10:46:24Z | WARNING | __main__ | [AAPL] not enough bars fetched; skipping
+2025-11-17T10:46:25Z | WARNING | __main__ | [MSFT] not enough bars fetched; skipping
+2025-11-17T10:46:25Z | WARNING | __main__ | [TSLA] not enough bars fetched; skipping
+2025-11-17T10:46:36Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=AAPL direction=short score=-0.1190 confidence=0.119 regime=high_vol rsi=38.10
+2025-11-17T10:46:37Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=MSFT direction=short score=-0.2165 confidence=0.216 regime=high_vol rsi=28.35
+2025-11-17T10:46:37Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=MSFT side=buy score=-0.2165 confidence=0.216 rsi=28.35 regime=high_vol
+2025-11-17T10:46:38Z | ERROR | __main__ | [MSFT] runner_failed error=422 Client Error: Unprocessable Entity for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T10:46:38Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=TSLA direction=long score=0.2368 confidence=0.237 regime=high_vol rsi=73.68
+2025-11-17T10:46:38Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=TSLA side=sell score=0.2368 confidence=0.237 rsi=73.68 regime=high_vol
+2025-11-17T10:46:39Z | ERROR | __main__ | [TSLA] runner_failed error=422 Client Error: Unprocessable Entity for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T11:07:50Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=AAPL direction=short score=-0.2176 confidence=0.218 regime=high_vol rsi=28.24
+2025-11-17T11:07:50Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=AAPL side=buy score=-0.2176 confidence=0.218 rsi=28.24 regime=high_vol
+2025-11-17T11:07:52Z | ERROR | sagetrade.execution.alpaca_broker | Alpaca order error 422 payload={'symbol': 'AAPL', 'qty': 0.03683105594637399, 'side': 'buy', 'type': 'market', 'time_in_force': 'gtc'} response={"code":42210000,"message":"fractional orders must be DAY orders"}
+2025-11-17T11:07:52Z | ERROR | __main__ | [AAPL] runner_failed error=422 Client Error: Unprocessable Entity for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T11:07:52Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=MSFT direction=short score=-0.2240 confidence=0.224 regime=high_vol rsi=27.60
+2025-11-17T11:07:52Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=MSFT side=buy score=-0.2240 confidence=0.224 rsi=27.60 regime=high_vol
+2025-11-17T11:07:53Z | ERROR | sagetrade.execution.alpaca_broker | Alpaca order error 422 payload={'symbol': 'MSFT', 'qty': 0.019607074232383045, 'side': 'buy', 'type': 'market', 'time_in_force': 'gtc'} response={"code":42210000,"message":"fractional orders must be DAY orders"}
+2025-11-17T11:07:53Z | ERROR | __main__ | [MSFT] runner_failed error=422 Client Error: Unprocessable Entity for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T11:07:54Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=TSLA direction=long score=0.2368 confidence=0.237 regime=high_vol rsi=73.68
+2025-11-17T11:07:54Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=TSLA side=sell score=0.2368 confidence=0.237 rsi=73.68 regime=high_vol
+2025-11-17T11:07:55Z | ERROR | sagetrade.execution.alpaca_broker | Alpaca order error 422 payload={'symbol': 'TSLA', 'qty': 0.02451160624555727, 'side': 'sell', 'type': 'market', 'time_in_force': 'gtc'} response={"code":42210000,"message":"fractional orders must be DAY orders"}
+2025-11-17T11:07:55Z | ERROR | __main__ | [TSLA] runner_failed error=422 Client Error: Unprocessable Entity for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T11:10:58Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=AAPL direction=short score=-0.2176 confidence=0.218 regime=high_vol rsi=28.24
+2025-11-17T11:10:58Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=AAPL side=buy score=-0.2176 confidence=0.218 rsi=28.24 regime=high_vol
+2025-11-17T11:10:59Z | INFO | __main__ | [AAPL] mean_reversion_scalper ORDER->Order(id='9c652cd2-4297-48ce-ba3f-c627a49d9f70', symbol='AAPL', side='buy', qty=0.03683105594637399, type='market', status='accepted', created_at=1763374259.2793117, updated_at=1763374259.2793117, limit_price=None, filled_qty=0.0, avg_fill_price=0.0, cancelled_reason=None) POSITION->Position(id='9c652cd2-4297-48ce-ba3f-c627a49d9f70', symbol='AAPL', side='long', qty=0.03683105594637399, entry_price=271.51, take_profit=None, stop_loss=None, opened_at=1763374259.2793117, closed_at=None, realized_pnl=0.0)
+2025-11-17T11:11:00Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=MSFT direction=short score=-0.1130 confidence=0.113 regime=high_vol rsi=38.70
+2025-11-17T11:11:00Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=TSLA direction=long score=0.2368 confidence=0.237 regime=high_vol rsi=73.68
+2025-11-17T11:11:00Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=TSLA side=sell score=0.2368 confidence=0.237 rsi=73.68 regime=high_vol
+2025-11-17T11:11:01Z | ERROR | sagetrade.execution.alpaca_broker | Alpaca order error 403 payload={'symbol': 'TSLA', 'qty': 0.02451160624555727, 'side': 'sell', 'type': 'market', 'time_in_force': 'day'} response={"code":40310000,"message":"account is not allowed to short"}
+2025-11-17T11:11:01Z | ERROR | __main__ | [TSLA] runner_failed error=403 Client Error: Forbidden for url: https://paper-api.alpaca.markets/v2/orders
+2025-11-17T11:15:01Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=AAPL direction=short score=-0.1786 confidence=0.179 regime=high_vol rsi=32.14
+2025-11-17T11:15:02Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=MSFT direction=short score=-0.1360 confidence=0.136 regime=high_vol rsi=36.40
+2025-11-17T11:15:02Z | INFO | sagetrade.signals.aggregator | composite_signal event=composite_signal symbol=TSLA direction=long score=0.2368 confidence=0.237 regime=high_vol rsi=73.68
+2025-11-17T11:15:02Z | INFO | sagetrade.strategy.strategies.mean_reversion_scalper | strategy_decision event=strategy_decision strategy=mean_reversion_scalper symbol=TSLA side=sell score=0.2368 confidence=0.237 rsi=73.68 regime=high_vol
+2025-11-17T11:15:02Z | INFO | sagetrade.risk.manager | trade_blocked event=trade_blocked symbol=TSLA reason=short_equities_not_allowed side=sell
+2025-11-17T11:15:02Z | INFO | __main__ | [TSLA] mean_reversion_scalper blocked by risk (short_equities_not_allowed)

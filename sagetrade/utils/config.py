@@ -43,14 +43,16 @@ class AlpacaBrokerSettings(BaseModel):
     base_url: str = "https://paper-api.alpaca.markets/v2"
     key_env: str = "ALPACA_API_KEY"
     secret_env: str = "ALPACA_API_SECRET"
+    key: Optional[str] = None
+    secret: Optional[str] = None
 
-    @property
-    def key(self) -> Optional[str]:
-        return os.getenv(self.key_env)
+    def resolve_key(self) -> Optional[str]:
+        """Use explicit key if provided, otherwise fall back to env."""
+        return self.key or os.getenv(self.key_env)
 
-    @property
-    def secret(self) -> Optional[str]:
-        return os.getenv(self.secret_env)
+    def resolve_secret(self) -> Optional[str]:
+        """Use explicit secret if provided, otherwise fall back to env."""
+        return self.secret or os.getenv(self.secret_env)
 
 
 class BrokersSettings(BaseModel):

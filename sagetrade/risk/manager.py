@@ -98,6 +98,17 @@ class RiskManager:
             )
             return False, reason
 
+        # Block equity shorts on accounts that are long-only (e.g., Alpaca paper cash).
+        if decision.symbol.isalpha() and len(decision.symbol) <= 5 and decision.side == "sell":
+            reason = "short_equities_not_allowed"
+            self._logger.info(
+                "trade_blocked event=trade_blocked symbol=%s reason=%s side=%s",
+                decision.symbol,
+                reason,
+                decision.side,
+            )
+            return False, reason
+
         equity = self.state.equity
         if equity <= 0:
             reason = "equity_non_positive"

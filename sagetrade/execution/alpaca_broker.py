@@ -19,19 +19,19 @@ class AlpacaBroker(BrokerBase):
     Notes:
     - Uses market orders only (no TP/SL handling here).
     - check_tp_sl is a no-op; positions stay open until manually closed or via API.
-    - Expects ALPACA_API_KEY / ALPACA_API_SECRET in environment.
+    - Expects ALPACA_API_KEY / ALPACA_API_SECRET in environment or config.
     - base_url should be the paper/live trading endpoint (e.g., https://paper-api.alpaca.markets/v2).
     """
 
-    def __init__(self, base_url: str) -> None:
+    def __init__(self, base_url: str, api_key: str | None = None, api_secret: str | None = None) -> None:
         normalized = base_url.rstrip("/")
         if not normalized.endswith("/v2"):
             normalized = f"{normalized}/v2"
         self.base_url = normalized
-        self.api_key = os.getenv("ALPACA_API_KEY")
-        self.api_secret = os.getenv("ALPACA_API_SECRET")
+        self.api_key = api_key or os.getenv("ALPACA_API_KEY")
+        self.api_secret = api_secret or os.getenv("ALPACA_API_SECRET")
         if not self.api_key or not self.api_secret:
-            raise RuntimeError("ALPACA_API_KEY/ALPACA_API_SECRET not set in environment.")
+            raise RuntimeError("ALPACA_API_KEY/ALPACA_API_SECRET not set in environment or config.")
 
     def _headers(self) -> Dict[str, str]:
         return {
@@ -41,15 +41,31 @@ class AlpacaBroker(BrokerBase):
         }
 
     def submit_order(self, order: Order) -> Order:
+        # Alpaca requires DAY for fractional stock orders; keep GTC for whole shares/crypto.
+        tif = "gtc"
+        if order.symbol.isalpha() and len(order.symbol) <= 5:
+            try:
+                if not float(order.qty).is_integer():
+                    tif = "day"
+            except Exception:
+                tif = "day"
         payload = {
             "symbol": order.symbol,
             "qty": order.qty,
             "side": order.side,
             "type": "market",
-            "time_in_force": "gtc",
+            "time_in_force": tif,
         }
         resp = requests.post(f"{self.base_url}/orders", json=payload, headers=self._headers(), timeout=10)
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            # Log full payload/response to identify why Alpaca rejected the order (e.g., qty invalid).
+            logger.error(
+                "Alpaca order error %s payload=%s response=%s",
+                resp.status_code,
+                payload,
+                resp.text,
+            )
+            resp.raise_for_status()
         data = resp.json()
         order.id = data.get("id", order.id)
         order.status = data.get("status", "submitted")
